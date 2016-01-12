@@ -11,7 +11,11 @@ public class PlayerMotor : MonoBehaviour
     private Rigidbody _rigidbody;
     private Vector3 velocity = Vector3.zero;
     private Vector3 rotation = Vector3.zero;
-    private Vector3 cameraRotation = Vector3.zero;
+    private float cameraRotationX = 0f;
+    private float currentCameraRotationX = 0f;
+    private Vector3 thrusterForce = Vector3.zero;
+
+    private float cameraRotationLimit = 85f;
 
     private void Awake()
     {
@@ -30,7 +34,12 @@ public class PlayerMotor : MonoBehaviour
         
         if (cam != null)
         {
-            cam.transform.Rotate(-cameraRotation);
+            // seta nossa rotacao da camera
+            currentCameraRotationX -= cameraRotationX;
+            currentCameraRotationX = Mathf.Clamp(currentCameraRotationX, -cameraRotationLimit, cameraRotationLimit);
+
+            // aplica a rotacao da camera
+            cam.transform.localEulerAngles = new Vector3(currentCameraRotationX, 0f,0f);
         }
     }
 
@@ -39,6 +48,11 @@ public class PlayerMotor : MonoBehaviour
         if (velocity != Vector3.zero)
         {
             _rigidbody.MovePosition(_rigidbody.position + velocity * Time.fixedDeltaTime);
+        }
+
+        if (thrusterForce != Vector3.zero)
+        {
+            _rigidbody.AddForce(thrusterForce * Time.fixedDeltaTime, ForceMode.Acceleration);
         }
     }
 
@@ -54,8 +68,14 @@ public class PlayerMotor : MonoBehaviour
         rotation = _rotation;
     }
 
-    internal void CameraRotation(Vector3 _cameraRotation)
+    internal void CameraRotation(float _cameraRotationX)
     {
-        cameraRotation = _cameraRotation;
+        cameraRotationX = _cameraRotationX;
+    }
+
+    // pega a forca do verctor para o propusor
+    internal void ApplyThrusterForce(Vector3 _thrusterForce)
+    {
+        thrusterForce = _thrusterForce;
     }
 }
