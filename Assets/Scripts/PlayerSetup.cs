@@ -8,14 +8,15 @@ public class PlayerSetup : NetworkBehaviour
 
     private Camera sceneCamera;
 
+    [SerializeField]
+    private string remoteLayerName = "RemotePlayer";
+
     private void Start()
     {
         if (!isLocalPlayer)
         {
-            for (int i = 0; i < componetsToDisable.Length; i++)
-            {
-                componetsToDisable[i].enabled = false;
-            }
+            DisableComponents();
+            AssingRemoteLayer();        
         } else
         {
             sceneCamera = Camera.main;
@@ -23,6 +24,30 @@ public class PlayerSetup : NetworkBehaviour
             {
                 sceneCamera.gameObject.SetActive(false);
             }
+        }
+
+        RegisterPlayer();
+
+    }
+
+    private void RegisterPlayer()
+    {
+        string _ID = "Player_" + GetComponent<NetworkIdentity>().netId;
+        transform.name = _ID;
+    }
+
+
+    private void AssingRemoteLayer()
+    {
+        gameObject.layer = LayerMask.NameToLayer(remoteLayerName);
+        gameObject.layer = 9;
+    }
+
+    private void DisableComponents()
+    {
+        for (int i = 0; i < componetsToDisable.Length; i++)
+        {
+            componetsToDisable[i].enabled = false;
         }
     }
 
